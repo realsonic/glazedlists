@@ -139,6 +139,13 @@
 	<!-- use windows files as default if nothing matches -->
 	<property name="swt.jar.file" value="org.eclipse.swt.win32.win32.x86.jar"/>
 		
+	<!-- needed for SWT on MacOS. -->
+    <condition property="junit.jvmargs" value="-XstartOnFirstThread">
+        <os family="mac"/>
+    </condition>
+	<!-- just to have some default JVM ARG, see test target -->
+	<property name="junit.jvmargs" value="-Xmixed"/>
+	
    <target name="ant_version_check">
         <antversion property="ant.version.running" />
         <fail message="FATAL ERROR:  The running Ant version, ${ant.version.running}, is too old.">
@@ -488,18 +495,18 @@
         <mkdir dir="extensions/hibernate/lib"/>
         <java classname="ca.odell.glazedlists.impl.HttpClient">
             <classpath path="${classes.dir}"/>
-            <arg value="${download.lib.url}/hibernate/4.1.12.Final/hibernate.jar"/>
+            <arg value="${download.lib.url}/hibernate/5.0.11.Final/hibernate.jar"/>
             <arg value="extensions/hibernate/lib/hibernate.jar"/>
         </java>		
         <java classname="ca.odell.glazedlists.impl.HttpClient">
             <classpath path="${classes.dir}"/>
-            <arg value="${download.lib.url}/hibernate/4.1.12.Final/hibernate-libs.jar"/>
+            <arg value="${download.lib.url}/hibernate/5.0.11.Final/hibernate-libs.jar"/>
             <arg value="extensions/hibernate/lib/hibernate-libs.jar"/>
         </java>				
         <java classname="ca.odell.glazedlists.impl.HttpClient">
             <classpath path="${classes.dir}"/>
-            <arg value="${download.lib.url}/hsqldb/2.2.6/hsqldb-jdk5.jar"/>
-            <arg value="extensions/hibernate/lib/hsqldb-jdk5.jar"/>
+            <arg value="${download.lib.url}/hsqldb/2.3.4/hsqldb.jar"/>
+            <arg value="extensions/hibernate/lib/hsqldb.jar"/>
         </java>				
         <javac destdir="${classes.dir}" srcdir="extensions/hibernate/source" debug="on" source="${java.target.version}" target="${java.target.version}" encoding="${java.encoding}" deprecation="off">
             <classpath>
@@ -727,15 +734,18 @@
     <target name="test" depends="compiletests"
             description="Compile unit tests and run them using JUnit.">
            <!-- Execute JUnit tests -->
-            <junit printsummary="true" showoutput="false" fork="true"
+            <junit printsummary="true" showoutput="false" fork="true" maxmemory="512m"
                     errorProperty="test.failed" failureProperty="test.failed">
+            	    <sysproperty key="java.awt.headless" value="true"/>
+            	    <jvmarg value="${junit.jvmargs}"/>
                     <assertions>
                     	<enable/>
                     </assertions>
                     <classpath>
                         <pathelement location="${classes.dir}"/>
                         <pathelement location="${testclasses.dir}"/>
-                        <fileset dir="extensions" includes="**/*.jar"/>
+                    	<!-- japex seems to bundle ant somehow, this could cause problems running tests with junit -->
+                        <fileset dir="extensions" includes="**/*.jar" excludes="japex/lib/*.jar"/>
                         <fileset file="tools/junit.jar"/>
                     	<fileset file="tools/hamcrest-core.jar"/>
                     	<pathelement location="extensions/hibernate/etc"/>

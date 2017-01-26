@@ -154,10 +154,13 @@ public class Grouper<E> {
                 // case: AACCC -> AABCC
                 // if the updated index is a UNIQUE index, we MAY have just created a
                 // new group (by modifying an element in place). Consequently, we must
-                // mark the NEXT element as UNIQUE and revisit it later to determine
-                // if it really is
+                // mark the NEXT element as UNIQUE and revisit it later to determine if it really is
+                //
+                // GLAZEDLISTS-599: apply this marking only, if there is no UNIQUE element added to the immediate 
+                // left that would belong to the same group
                 if (barcode.get(changeIndex) == UNIQUE) {
-                    if (changeIndex+1 < barcode.size() && barcode.get(changeIndex+1) == DUPLICATE) {
+                    if (changeIndex+1 < barcode.size() && barcode.get(changeIndex+1) == DUPLICATE 
+                            && (changeIndex == 0 || !uniqueElementAddedToLeftInSameGroup(toDoList, changeIndex))) {
                         // however, we need to make sure that the barcode UNIQUE entry we are looking at
                         // was part of the barcode state before we started this iteration of listChanges.
                         // Specifically, we are concerned about the case where an update on the first element
@@ -237,6 +240,29 @@ public class Grouper<E> {
 
                 // get the new group location
                 tryJoinExistingGroup(changeIndex, toDoList, tryJoinResult);
+
+                int successor = changeIndex + 1;
+                if (tryJoinResult.group == LEFT_GROUP) {
+                    // This fixes case like ABCD -> D___
+                    // Without this, the group would change from ABCD to D__D instead.
+                    // . Check whether a left group was joined, but there's an element on the right side, that belongs in this group
+                    //   and is marked UNIQUE.
+                    //   If that is the case, we found the previous starting position of the entire group that moved to the left.
+                    // . Set that to DUPLICATE and the oldGroup to NO_GROUP
+                    if (successor < barcode.size() && barcode.get(successor) == UNIQUE && toDoList.get(successor) == DONE && groupTogether(changeIndex, successor)) {
+                        barcode.set(successor, DUPLICATE, 1);
+                        oldGroup = NO_GROUP;
+                    }
+                } else if (tryJoinResult.group == NO_GROUP) {
+                    // This fixes case like C__ -> ABC
+                    // Without this, the group would change from C__ to AB_ instead.
+                    // . Check whether the next element doesn't belong in this group, but it marked as DUPLICATE
+                    // . Set it to UNIQUE and the oldGroup to RIGHT_GROUP
+                    if (successor < barcode.size() && barcode.get(successor) == DUPLICATE) {
+                        barcode.set(successor, UNIQUE, 1);
+                        oldGroup = RIGHT_GROUP;
+                    }
+                }
 
                 // the index of the GroupList being updated (it may or may not exist yet)
                 int groupIndex = tryJoinResult.groupIndex;
@@ -336,6 +362,13 @@ public class Grouper<E> {
     }
 
     /**
+     * Helper method to determine a specific condition for a workaround. That's a hack needed for GLAZEDLISTS-599.
+     */
+    private boolean uniqueElementAddedToLeftInSameGroup(final Barcode toDoList, final int changeIndex) {
+        return barcode.get(changeIndex-1) == UNIQUE && toDoList.get(changeIndex-1) == TODO && groupTogether(changeIndex-1, changeIndex);
+    }
+
+    /**
      * Tests if the specified values should be grouped together.
      *
      * @param sourceIndex0 the first index of the source list to test
@@ -378,7 +411,7 @@ public class Grouper<E> {
             // we have found a successor that belongs in the same group
             if (groupTogether(changeIndex, successorIndex)) {
                 // if the successor is OLD, have changeIndex join the existing group
-                if (toDoList.get(successorIndex) == DONE) {
+                if (toDoList.get(successorIndex) == DONE && barcode.get(successorIndex) == UNIQUE) {
                     barcode.set(changeIndex, UNIQUE, 1);
                     barcode.set(successorIndex, DUPLICATE, 1);
                     int groupIndex = barcode.getColourIndex(changeIndex, UNIQUE);
