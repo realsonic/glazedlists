@@ -1,3 +1,6 @@
+.gradle/
+**/build
+**/bin
 target/
 .project
 .classpath
@@ -6,5 +9,6 @@ target/
 *.iml
 *.ipr
 *.iws
-extensions/*/lib/
 tools/
+*.swp
+*.DS_Store

@@ -2,33 +2,33 @@
 
 [![Build Status](https://travis-ci.org/glazedlists/glazedlists.svg?branch=master)](https://travis-ci.org/glazedlists/glazedlists)
 
+[![Join the chat at https://gitter.im/glazedlists/glazedlists](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/glazedlists/glazedlists)
+
 ### Project sites
 
 Home page: 		http://www.glazedlists.com/
 
-java.net site:  https://java.net/projects/glazedlists
-
 ### Documentation
 
-See documentation at [www.glazedlists.com] (http://www.glazedlists.com/documentation)
+See documentation at [www.glazedlists.com](http://www.glazedlists.com/documentation)
 
 ### Issue tracker
 
-[JIRA] (https://java.net/jira/browse/GLAZEDLISTS)
+[GitHub Issues](https://github.com/glazedlists/glazedlists/issues)
 
 ### Releases
 
-Browse [Release Notes] (http://www.glazedlists.com/releases)
+Browse [Release Notes](http://www.glazedlists.com/releases)
 
-Download [Latest Release] (https://java.net/projects/glazedlists/downloads/directory/glazedlists-1.9.0)
+Download [Latest Release](http://repo1.maven.org/maven2/net/java/dev/glazedlists/glazedlists_java16/1.10.0/)
 
-Configure [Maven] (http://www.glazedlists.com/Home/maven)
+Configure [Maven](http://www.glazedlists.com/Home/maven)
 
 ### Mailing lists
 
 Please join the appropriate mailing list, if you are interested in using or contributing to Glazed Lists.
 
-[Overview of mailing lists](https://java.net/projects/glazedlists/lists)
+[Overview of mailing lists](http://glazedlists.1045722.n5.nabble.com/GlazedLists-f3416377.subapps.html)
 
 ### License
 
@@ -43,5 +43,5 @@ It does not allow you to
 
 It is made available under two licenses:
 
-  * [LGPL] (http://creativecommons.org/licenses/LGPL/2.1/)
-  * [MPL] (http://www.mozilla.org/MPL/)
+  * [LGPL](http://creativecommons.org/licenses/LGPL/2.1/)
+  * [MPL](http://www.mozilla.org/MPL/)
